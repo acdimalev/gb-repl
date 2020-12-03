@@ -1,0 +1,15 @@
+#!/usr/bin/env python3
+
+import readline
+
+from interpreter import instruction, mnemonics, err
+
+while True:
+    try:
+        s = input('> ')
+        (m, a) = instruction(s)
+        mnemonics.get(m, err)(*a)
+    except EOFError:
+        break
+
+print('exit')
