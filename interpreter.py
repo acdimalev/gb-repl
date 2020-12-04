@@ -32,10 +32,13 @@ def tokenize(s):
         if -0x8000 <= x <= 0xffff:
             return (['n16'], x)
 
+    if 'A' == S:
+        return (['A', 'r8'], S)
+
     if 'C' == S:
         return (['r8', 'cc'], S)
 
-    if S in ['A', 'B', 'D', 'E', 'H', 'L']:
+    if S in ['B', 'D', 'E', 'H', 'L']:
         return (['r8'], S)
 
     if 'HL' == S:
@@ -155,11 +158,11 @@ def err(*args):
 
 def adc(*args):
     if 1 == len(args):
-        args = [(['r8'], 'A'), args[0]]
+        args = [(['A', 'r8'], 'A'), args[0]]
     if 2 != len(args):
         return err(args)
     (dst, src) = args
-    if 'r8' not in dst[0] or 'A' != dst[1]:
+    if 'A' not in dst[0]:
         return err(args)
     x = None
     if 'n8' in src[0]:
@@ -174,14 +177,14 @@ def adc(*args):
 
 def add(*args):
     if 1 == len(args):
-        args = [(['r8'], 'A'), args[0]]
+        args = [(['A', 'r8'], 'A'), args[0]]
     if 2 != len(args):
         return err(args)
     (dst, src) = args
     if 'HL' in dst[0] and 'r16' in src[0]:
         (r16.HL, r8.F) = _add16(r16.HL, r16[src[1]], r8.F)
         return
-    if 'r8' not in dst[0] or 'A' != dst[1]:
+    if 'A' not in dst[0]:
         return err(args)
     x = None
     if 'n8' in src[0]:
@@ -196,11 +199,11 @@ def add(*args):
 
 def cp(*args):
     if 1 == len(args):
-        args = [(['r8'], 'A'), args[0]]
+        args = [(['A', 'r8'], 'A'), args[0]]
     if 2 != len(args):
         return err(args)
     (dst, src) = args
-    if 'r8' not in dst[0] or 'A' != dst[1]:
+    if 'A' not in dst[0]:
         return err(args)
     x = None
     if 'n8' in src[0]:
@@ -267,6 +270,22 @@ def ld(*args):
         if 'r8' in src[0]:
             mem8[r16.HL] = r8[src[1]]
             return
+    if 'A' in dst[0] and '[HLD]' in src[0]:
+        r8.A = mem8[r16.HL]
+        r16.HL -= 1
+        return
+    if 'A' in dst[0] and '[HLI]' in src[0]:
+        r8.A = mem8[r16.HL]
+        r16.HL += 1
+        return
+    if '[HLD]' in dst[0] and 'A' in src[0]:
+        mem8[r16.HL] = r8.A
+        r16.HL -= 1
+        return
+    if '[HLI]' in dst[0] and 'A' in src[0]:
+        mem8[r16.HL] = r8.A
+        r16.HL += 1
+        return
     if 'r16' in dst[0]:
         if 'n16' in src[0]:
             r16[dst[1]] = src[1]
@@ -361,11 +380,11 @@ def r_4(*args):
 
 def sbc(*args):
     if 1 == len(args):
-        args = [(['r8'], 'A'), args[0]]
+        args = [(['A', 'r8'], 'A'), args[0]]
     if 2 != len(args):
         return err(args)
     (dst, src) = args
-    if 'r8' not in dst[0] or 'A' != dst[1]:
+    if 'A' not in dst[0]:
         return err(args)
     x = None
     if 'n8' in src[0]:
@@ -420,11 +439,11 @@ def status(*args):
 
 def sub(*args):
     if 1 == len(args):
-        args = [(['r8'], 'A'), args[0]]
+        args = [(['A', 'r8'], 'A'), args[0]]
     if 2 != len(args):
         return err(args)
     (dst, src) = args
-    if 'r8' not in dst[0] or 'A' != dst[1]:
+    if 'A' not in dst[0]:
         return err(args)
     x = None
     if 'n8' in src[0]:
@@ -506,11 +525,11 @@ def x_4(*args):
 
 def xor(*args):
     if 1 == len(args):
-        args = [(['r8'], 'A'), args[0]]
+        args = [(['A', 'r8'], 'A'), args[0]]
     if 2 != len(args):
         return err(args)
     (dst, src) = args
-    if 'r8' not in dst[0] or 'A' != dst[1]:
+    if 'A' not in dst[0]:
         return err(args)
     x = None
     if 'n8' in src[0]:
