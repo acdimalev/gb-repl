@@ -122,6 +122,13 @@ def _inc16(x):
     return (x + 1) & 0xffff
 
 
+def _rrca(a):
+    c = 1 & a
+    return (a >> 1 | c << 7, _flags(
+        c=c,
+    ))
+
+
 def _srl(x):
     return (x >> 1, _flags(
         z=not bool(x >> 1),
@@ -381,6 +388,12 @@ def r_4(*args):
     return err(args)
 
 
+def rrca(*args):
+    if 0 != len(args):
+        return err(args)
+    (r8.A, r8.F) = _rrca(r8.A)
+
+
 def sbc(*args):
     if 1 == len(args):
         args = [(['A', 'r8'], 'A'), args[0]]
@@ -561,6 +574,7 @@ mnemonics = {
     'r/1': r_1,
     'r/2': r_2,
     'r/4': r_4,
+    'rrca': rrca,
     'sbc': sbc,
     'srl': srl,
     'status': status,
