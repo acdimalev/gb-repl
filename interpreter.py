@@ -19,6 +19,9 @@ def tokenize(s):
     if all(c in "0123456789" for c in n):
         x = sign * int(n)
 
+    if '%' == n[0] and all(c in "01" for c in n[1:]):
+        x = sign * int(n[1:], 2)
+
     if '$' == n[0] and all(c in "0123456789ABCDEF" for c in n[1:]):
         x = sign * int(n[1:], 16)
 
